@@ -9,6 +9,7 @@ module.exports = {
   entry: "./src/index.jsx",
   output: {
     path: path.resolve(__dirname, "build"),
+     publicPath: '/'
   },
   resolve: { extensions },
   devServer: {
@@ -35,6 +36,9 @@ module.exports = {
         use: ["style-loader", "css-loader"],
       },
     ],
+  },
+  devServer: {
+    historyApiFallback: true,
   },
   plugins: [
     new EslintWebpackPlugin({ extensions }),
