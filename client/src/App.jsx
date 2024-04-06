@@ -6,6 +6,8 @@ import Sidebar from "./components/Sidebar";
 import Topbar from "./components/Topbar";
 import Dashboard from "./components/Dashboard";
 import Form from "./components/Form";
+import CovidTrend from "./components/CovidTrend";
+import VaccineCertificate from "./components/VaccineCertificate";
 
 function App() {
   const [theme, colorMode] = useMode();
@@ -20,8 +22,10 @@ function App() {
           <main className="content">
             <Topbar setIsSidebar={setIsSidebar} />
             <Routes>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/new" element={<Form />} />
+              <Route exact path="/" Component={Dashboard} />
+              <Route exact path="/new" Component={Form} />
+              <Route exact path="/trend" Component={CovidTrend} />
+              <Route exact path="/certificate" Component={VaccineCertificate} />
             </Routes>
           </main>
         </div>

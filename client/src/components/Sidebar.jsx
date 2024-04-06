@@ -120,15 +120,15 @@ const Sidebar = () => {
               setSelected={setSelected}
             />
             <Item
-              title="Covid Trend Table"
-              to="/contacts"
+              title="Covid Trend"
+              to="/trend"
               icon={<TableChartIcon />}
               selected={selected}
               setSelected={setSelected}
             />
             <Item
               title={IsAdmin ? "" : "Vaccine Certificate"}
-              to="/invoices"
+              to="/certificate"
               icon={<ReceiptOutlinedIcon />}
               selected={selected}
               setSelected={setSelected}

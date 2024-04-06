@@ -3,17 +3,39 @@ import { Formik } from "formik";
 import * as yup from "yup";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import Header from "./Header";
+import { useState } from "react";
 
 const Form = () => {
   const isNonMobile = useMediaQuery("(min-width:600px)");
+  const [isAdmin, setIsAdmin] = useState(false)
 
   const handleFormSubmit = (values) => {
     console.log(values);
   };
 
+  const checkoutSchema = yup.object().shape({
+    age: yup.string().required("Required"),
+    gender: yup.string().required("Required"),
+    vaccineStatus: yup.string()
+      .required("Required")
+      .oneOf(["One Dose", "Two Dose", "Not Vaccinated"], "Invalid vaccine status"),
+    district: yup.string().required("Required"),
+    symptom: yup.string().required("Required"),
+    isDead: yup.string().oneOf(["True", "False"], "Invalid Is Dead status"),
+  });
+
+  const initialValues = {
+    age: "",
+    gender: "",
+    vaccineStatus: "",
+    district: "",
+    symptom: "",
+    isDead: "",
+  };
+
   return (
     <Box m="20px">
-      <Header title="CREATE PROFILE" subtitle="Create a New User Profile" />
+      <Header title="CREATE PROFILE" subtitle="Create a New Profile" />
 
       <Formik
         onSubmit={handleFormSubmit}
@@ -41,84 +63,84 @@ const Form = () => {
                 fullWidth
                 variant="filled"
                 type="text"
-                label="First Name"
+                label="Age"
                 onBlur={handleBlur}
                 onChange={handleChange}
-                value={values.firstName}
-                name="firstName"
-                error={!!touched.firstName && !!errors.firstName}
-                helperText={touched.firstName && errors.firstName}
+                value={values.age}
+                name="age"
+                error={!!touched.age && !!errors.age}
+                helperText={touched.age && errors.age}
                 sx={{ gridColumn: "span 2" }}
               />
               <TextField
                 fullWidth
                 variant="filled"
                 type="text"
-                label="Last Name"
+                label="Gender"
                 onBlur={handleBlur}
                 onChange={handleChange}
-                value={values.lastName}
-                name="lastName"
-                error={!!touched.lastName && !!errors.lastName}
-                helperText={touched.lastName && errors.lastName}
+                value={values.gender}
+                name="gender"
+                error={!!touched.gender && !!errors.gender}
+                helperText={touched.gender && errors.gender}
                 sx={{ gridColumn: "span 2" }}
               />
               <TextField
                 fullWidth
                 variant="filled"
                 type="text"
-                label="Email"
+                label="Vaccine Status"
                 onBlur={handleBlur}
                 onChange={handleChange}
-                value={values.email}
-                name="email"
-                error={!!touched.email && !!errors.email}
-                helperText={touched.email && errors.email}
+                value={values.vaccineStatus}
+                name="vaccineStatus"
+                error={!!touched.vaccineStatus && !!errors.vaccineStatus}
+                helperText={touched.vaccineStatus && errors.vaccineStatus}
                 sx={{ gridColumn: "span 4" }}
               />
               <TextField
                 fullWidth
                 variant="filled"
                 type="text"
-                label="Contact Number"
+                label="District"
                 onBlur={handleBlur}
                 onChange={handleChange}
-                value={values.contact}
-                name="contact"
-                error={!!touched.contact && !!errors.contact}
-                helperText={touched.contact && errors.contact}
+                value={values.district}
+                name="district"
+                error={!!touched.district && !!errors.district}
+                helperText={touched.district && errors.district}
                 sx={{ gridColumn: "span 4" }}
               />
               <TextField
                 fullWidth
                 variant="filled"
                 type="text"
-                label="Address 1"
+                label="Symptoms"
                 onBlur={handleBlur}
                 onChange={handleChange}
-                value={values.address1}
-                name="address1"
-                error={!!touched.address1 && !!errors.address1}
-                helperText={touched.address1 && errors.address1}
+                value={values.symptom}
+                name="symptom"
+                error={!!touched.symptom && !!errors.symptom}
+                helperText={touched.symptom && errors.symptom}
                 sx={{ gridColumn: "span 4" }}
               />
               <TextField
                 fullWidth
                 variant="filled"
                 type="text"
-                label="Address 2"
+                label="Is Dead"
                 onBlur={handleBlur}
                 onChange={handleChange}
-                value={values.address2}
-                name="address2"
-                error={!!touched.address2 && !!errors.address2}
-                helperText={touched.address2 && errors.address2}
+                value={values.isDead}
+                name="isDead"
+                error={!!touched.isDead && !!errors.isDead}
+                helperText={touched.isDead && errors.isDead}
                 sx={{ gridColumn: "span 4" }}
               />
             </Box>
             <Box display="flex" justifyContent="end" mt="20px">
               <Button type="submit" color="secondary" variant="contained">
-                Create New User
+                {isAdmin ? "Add Patient" : "Register"}
               </Button>
             </Box>
           </form>
@@ -126,29 +148,6 @@ const Form = () => {
       </Formik>
     </Box>
   );
-};
-
-const phoneRegExp =
-  /^((\+[1-9]{1,4}[ -]?)|(\([0-9]{2,3}\)[ -]?)|([0-9]{2,4})[ -]?)*?[0-9]{3,4}[ -]?[0-9]{3,4}$/;
-
-const checkoutSchema = yup.object().shape({
-  firstName: yup.string().required("required"),
-  lastName: yup.string().required("required"),
-  email: yup.string().email("invalid email").required("required"),
-  contact: yup
-    .string()
-    .matches(phoneRegExp, "Phone number is not valid")
-    .required("required"),
-  address1: yup.string().required("required"),
-  address2: yup.string().required("required"),
-});
-const initialValues = {
-  firstName: "",
-  lastName: "",
-  email: "",
-  contact: "",
-  address1: "",
-  address2: "",
 };
 
 export default Form;
