@@ -86,15 +86,6 @@ const Sidebar = () => {
 
           {!isCollapsed && (
             <Box mb="25px">
-              {/* <Box display="flex" justifyContent="center" alignItems="center">
-                <img
-                  alt="profile-user"
-                  width="100px"
-                  height="100px"
-                  src={`../../assets/user.png`}
-                  style={{ cursor: "pointer", borderRadius: "50%" }}
-                />
-              </Box> */}
               <Box textAlign="center">
                 <Typography variant="h5" color={colors.greenAccent[500]}>
                 {IsAdmin ? "Admin" : "Patient Name"}
