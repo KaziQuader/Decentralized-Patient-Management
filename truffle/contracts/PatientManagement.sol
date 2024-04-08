@@ -3,6 +3,7 @@ pragma solidity >=0.7.0 <0.9.0;
 
 // id, age, gender, vaccine_status, district, symptoms_details, is_dead.
 contract PatientManagement {
+    // Variables
     address public admin;
 
     struct Patient {
@@ -17,17 +18,21 @@ contract PatientManagement {
 
     mapping(address => Patient) public patients;
 
+    // Events to inform the client that the state has updated
+    event PateintAdded(address patient_add);
+
+    // Constructor that sets the admin to be a specific address defined in migration
     constructor(address _admin) {
         admin = _admin;
     }
 
+    // Modifier to make sure some functions can only be called by the Admin
     modifier onlyAdmin() {
         require(msg.sender == admin, "Only admin can perform this action");
         _;
     }
 
-    event PateintAdded(address patient_add);
-
+    // Add Patient by inputting the necessary params
     function addPatient(
         address _patient_address,
         uint256 _age,
@@ -40,18 +45,22 @@ contract PatientManagement {
         address patient_add;
         uint256 patientId;
 
+        // If Admin adds patient
         if (msg.sender == admin) {
             patient_add = _patient_address;
             patientId = uint256(
                 keccak256(abi.encodePacked(patient_add, block.timestamp))
             );
-        } else {
+        }
+        // If patients registers by himself / herself
+        else {
             patient_add = msg.sender;
             patientId = uint256(
                 keccak256(abi.encodePacked(patient_add, block.timestamp))
             );
         }
 
+        // Creating a struct of Patient and storing it in memory by the variable named newPatient
         Patient memory newPatient = Patient(
             patientId,
             _age,
@@ -61,11 +70,13 @@ contract PatientManagement {
             _symptoms_details,
             _is_dead
         );
+        // The mapping patient gets the key as the patient address and value as newPatient
         patients[patient_add] = newPatient;
 
         emit PateintAdded(patient_add);
     }
 
+    // Admin can update vaccine status of patient
     function updateVaccineStatus(
         address _patient_address,
         string memory _vaccine_status
@@ -73,6 +84,7 @@ contract PatientManagement {
         patients[_patient_address].vaccine_status = _vaccine_status;
     }
 
+    // Admin can update is_dead status of patient
     function updateIsDead(
         address _patient_address,
         bool _is_dead
@@ -80,6 +92,7 @@ contract PatientManagement {
         patients[_patient_address].is_dead = _is_dead;
     }
 
+    // Function to let patient download vaccine certificate if he / she recieved two doses
     function certificate() public view returns (string memory) {
         string memory vaccine_stat = patients[msg.sender].vaccine_status;
         string memory equal = "two_doses";
