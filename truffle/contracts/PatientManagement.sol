@@ -5,6 +5,7 @@ pragma solidity >=0.7.0 <0.9.0;
 contract PatientManagement {
     // Variables
     address public admin;
+    address[] private patient;
 
     struct Patient {
         uint256 id;
@@ -16,10 +17,17 @@ contract PatientManagement {
         bool is_dead;
     }
 
+    struct Profile {
+        address addr;
+        string role;
+    }
+
     mapping(address => Patient) public patients;
 
     // Events to inform the client that the state has updated
-    event PateintAdded(address patient_add);
+    event PatientAdded(address patient_add);
+    event VaccineStatusUpdated(address patient_add, string vaccine_status);
+    event IsDeadStatusUpdated(address patient_add, bool is_dead);
 
     // Constructor that sets the admin to be a specific address defined in migration
     constructor(address _admin) {
@@ -72,8 +80,9 @@ contract PatientManagement {
         );
         // The mapping patient gets the key as the patient address and value as newPatient
         patients[patient_add] = newPatient;
+        patient.push(patient_add);
 
-        emit PateintAdded(patient_add);
+        emit PatientAdded(patient_add);
     }
 
     // Admin can update vaccine status of patient
@@ -82,6 +91,7 @@ contract PatientManagement {
         string memory _vaccine_status
     ) public onlyAdmin {
         patients[_patient_address].vaccine_status = _vaccine_status;
+        emit VaccineStatusUpdated(_patient_address, _vaccine_status);
     }
 
     // Admin can update is_dead status of patient
@@ -90,6 +100,7 @@ contract PatientManagement {
         bool _is_dead
     ) public onlyAdmin {
         patients[_patient_address].is_dead = _is_dead;
+        emit IsDeadStatusUpdated(_patient_address, _is_dead);
     }
 
     // Function to let patient download vaccine certificate if he / she recieved two doses
@@ -109,4 +120,36 @@ contract PatientManagement {
 
         return "You have recieved two doses of vaccine";
     }
+
+    // Get all patients
+    function getAllPatients() public view returns (Patient[] memory) {
+        // Creating an array of struct
+        Patient[] memory allPatients = new Patient[](patient.length);
+
+        // The array of struct is populated with the patients stored in the mapping
+        for (uint256 i = 0; i < patient.length; i++) {
+            address patientAddress = patient[i];
+            allPatients[i] = patients[patientAddress];
+        }
+
+        return allPatients;
+    }
+
+    // Get profile (admin or patient or unregistered)
+    function profile() public view returns (Profile[] memory) {
+        Profile[] memory prof = new Profile[](1);
+
+        if (msg.sender == admin) {
+            prof[0] = Profile(admin, "Admin");
+            return prof;
+        } else if (msg.sender != admin && patients[msg.sender].id != 0) {
+            prof[0] = Profile(msg.sender, "Patient");
+            return prof;
+        } else {
+            prof[0] = Profile(msg.sender, "Unregistered");
+            return prof;
+        }
+    }
+
+    // Covid Trend Table
 }
