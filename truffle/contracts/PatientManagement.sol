@@ -6,6 +6,12 @@ contract PatientManagement {
     // Variables
     address public admin;
     address[] private patient;
+    uint public districtMaxPatient = 0;
+    uint public totalPatientCount;
+    uint public totalDeathCount;
+    uint[4] public ageCount;
+    string[] private district;
+    string public districtWithMaxPatient;
 
     struct Patient {
         uint256 id;
@@ -22,6 +28,12 @@ contract PatientManagement {
         string role;
     }
 
+    struct MedianDistrict {
+        string district;
+        uint median;
+    }
+
+    mapping(string => uint256[]) public districts;
     mapping(address => Patient) public patients;
 
     // Events to inform the client that the state has updated
@@ -78,9 +90,34 @@ contract PatientManagement {
             _symptoms_details,
             _is_dead
         );
-        // The mapping patient gets the key as the patient address and value as newPatient
+        // The mapping patients gets the key as the patient address and value as newPatient
         patients[patient_add] = newPatient;
         patient.push(patient_add);
+
+        // Recording the ages for each district and update the district with max number of patient
+        districts[_district].push(_age);
+        if (districts[_district].length > districtMaxPatient) {
+            districtMaxPatient = districts[_district].length;
+            districtWithMaxPatient = _district;
+        }
+        district.push(_district);
+
+        // Recording death count and patient count
+        if (_is_dead) {
+            totalDeathCount++;
+        }
+        totalPatientCount++;
+
+        // Recording age count based on age range
+        if (_age <= 12) {
+            ageCount[0]++;
+        } else if (_age >= 13 && _age <= 19) {
+            ageCount[1]++;
+        } else if (_age >= 20 && _age <= 49) {
+            ageCount[2]++;
+        } else {
+            ageCount[3]++;
+        }
 
         emit PatientAdded(patient_add);
     }
@@ -152,4 +189,77 @@ contract PatientManagement {
     }
 
     // Covid Trend Table
+    function covidTrendTable()
+        public
+        view
+        returns (
+            uint256 averageDeathRate,
+            uint256 percentageChildren,
+            uint256 percentageTeenagers,
+            uint256 percentageYoung,
+            uint256 percentageElder,
+            string memory maxPatientDistrict,
+            MedianDistrict[] memory
+        )
+    {
+        uint median;
+        MedianDistrict[] memory allDistrict = new MedianDistrict[](
+            district.length
+        );
+
+        averageDeathRate = totalDeathCount / totalPatientCount;
+
+        percentageChildren = (ageCount[0] * 100) / totalPatientCount;
+        percentageTeenagers = (ageCount[1] * 100) / totalPatientCount;
+        percentageYoung = (ageCount[2] * 100) / totalPatientCount;
+        percentageElder = (ageCount[3] * 100) / totalPatientCount;
+
+        maxPatientDistrict = districtWithMaxPatient;
+
+        for (uint i = 0; i < district.length; i++) {
+            uint[] memory ageArray = districts[district[i]];
+
+            uint[] memory sortedArray = bubbleSort(ageArray);
+
+            // Calculate the median
+            if (sortedArray.length % 2 == 0) {
+                // If even number of elements, take the average of the middle two
+                uint middleIndex1 = (sortedArray.length / 2);
+                uint middleIndex2 = middleIndex1 + 1;
+                median =
+                    (sortedArray[middleIndex1] + sortedArray[middleIndex2]) /
+                    2;
+            } else {
+                // If odd number of elements, take the middle element
+                uint middleIndex = (sortedArray.length + 1) / 2;
+                median = sortedArray[middleIndex];
+            }
+
+            MedianDistrict memory newData = MedianDistrict(district[i], median);
+
+            allDistrict[i] = newData;
+        }
+
+        return (
+            averageDeathRate,
+            percentageChildren,
+            percentageTeenagers,
+            percentageYoung,
+            percentageElder,
+            maxPatientDistrict,
+            allDistrict
+        );
+    }
+
+    function bubbleSort(uint[] memory arr) public pure returns (uint[] memory) {
+        uint n = arr.length;
+        for (uint i = 0; i < n - 1; i++) {
+            for (uint j = 0; j < n - i - 1; j++) {
+                if (arr[j] > arr[j + 1]) {
+                    (arr[j], arr[j + 1]) = (arr[j + 1], arr[j]);
+                }
+            }
+        }
+        return arr;
+    }
 }

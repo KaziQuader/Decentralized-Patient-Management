@@ -32,7 +32,7 @@ const Item = ({ title, to, icon, selected, setSelected }) => {
 const Sidebar = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-  const [IsAdmin, setIsAdmin] = useState(false)
+  const [IsAdmin, setIsAdmin] = useState(true)
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [selected, setSelected] = useState("Dashboard");
 
@@ -84,7 +84,7 @@ const Sidebar = () => {
             )}
           </MenuItem>
 
-          {!isCollapsed && (
+          {/* {!isCollapsed && (
             <Box mb="25px">
               <Box textAlign="center">
                 <Typography variant="h5" color={colors.greenAccent[500]}>
@@ -92,7 +92,7 @@ const Sidebar = () => {
                 </Typography>
               </Box>
             </Box>
-          )}
+          )} */}
 
           <Box paddingLeft={isCollapsed ? undefined : "10%"}>
             <Item
@@ -117,13 +117,16 @@ const Sidebar = () => {
               selected={selected}
               setSelected={setSelected}
             />
+
+            {IsAdmin ? 
+            "" : 
             <Item
               title={IsAdmin ? "" : "Vaccine Certificate"}
               to="/certificate"
               icon={<ReceiptOutlinedIcon />}
               selected={selected}
               setSelected={setSelected}
-            />
+            />}
           </Box>
         </Menu>
       </ProSidebar>

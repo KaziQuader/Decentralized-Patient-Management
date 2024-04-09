@@ -8,6 +8,7 @@ import Dashboard from "./components/Dashboard";
 import Form from "./components/Form";
 import CovidTrend from "./components/CovidTrend";
 import VaccineCertificate from "./components/VaccineCertificate";
+import Update from "./components/Update";
 
 function App() {
   const [theme, colorMode] = useMode();
@@ -26,6 +27,7 @@ function App() {
               <Route exact path="/new" Component={Form} />
               <Route exact path="/trend" Component={CovidTrend} />
               <Route exact path="/certificate" Component={VaccineCertificate} />
+              <Route exact path="/update" Component={Update} />
             </Routes>
           </main>
         </div>
