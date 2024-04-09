@@ -5,12 +5,12 @@ pragma solidity >=0.7.0 <0.9.0;
 contract PatientManagement {
     // Variables
     address public admin;
-    address[] private patient;
+    address[] private patientAddressArray;
     uint public districtMaxPatient = 0;
     uint public totalPatientCount;
     uint public totalDeathCount;
     uint[4] public ageCount;
-    string[] private district;
+    string[] private districtNameArray;
     string public districtWithMaxPatient;
 
     struct Patient {
@@ -65,7 +65,7 @@ contract PatientManagement {
         address patient_add;
         uint256 patientId;
 
-        // If Admin adds patient
+        // If Admin adds patientAddressArray
         if (msg.sender == admin) {
             patient_add = _patient_address;
             patientId = uint256(
@@ -90,19 +90,19 @@ contract PatientManagement {
             _symptoms_details,
             _is_dead
         );
-        // The mapping patients gets the key as the patient address and value as newPatient
+        // The mapping patients gets the key as the patientAddressArray address and value as newPatient
         patients[patient_add] = newPatient;
-        patient.push(patient_add);
+        patientAddressArray.push(patient_add);
 
-        // Recording the ages for each district and update the district with max number of patient
+        // Recording the ages for each district and update the district with max number of patientAddressArray
         districts[_district].push(_age);
         if (districts[_district].length > districtMaxPatient) {
             districtMaxPatient = districts[_district].length;
             districtWithMaxPatient = _district;
         }
-        district.push(_district);
+        districtNameArray.push(_district);
 
-        // Recording death count and patient count
+        // Recording death count and patientAddressArray count
         if (_is_dead) {
             totalDeathCount++;
         }
@@ -122,7 +122,7 @@ contract PatientManagement {
         emit PatientAdded(patient_add);
     }
 
-    // Admin can update vaccine status of patient
+    // Admin can update vaccine status of patientAddressArray
     function updateVaccineStatus(
         address _patient_address,
         string memory _vaccine_status
@@ -131,7 +131,7 @@ contract PatientManagement {
         emit VaccineStatusUpdated(_patient_address, _vaccine_status);
     }
 
-    // Admin can update is_dead status of patient
+    // Admin can update is_dead status of patientAddressArray
     function updateIsDead(
         address _patient_address,
         bool _is_dead
@@ -140,7 +140,7 @@ contract PatientManagement {
         emit IsDeadStatusUpdated(_patient_address, _is_dead);
     }
 
-    // Function to let patient download vaccine certificate if he / she recieved two doses
+    // Function to let patientAddressArray download vaccine certificate if he / she recieved two doses
     function certificate() public view returns (string memory) {
         string memory vaccine_stat = patients[msg.sender].vaccine_status;
         string memory equal = "two_doses";
@@ -161,18 +161,20 @@ contract PatientManagement {
     // Get all patients
     function getAllPatients() public view returns (Patient[] memory) {
         // Creating an array of struct
-        Patient[] memory allPatients = new Patient[](patient.length);
+        Patient[] memory allPatients = new Patient[](
+            patientAddressArray.length
+        );
 
         // The array of struct is populated with the patients stored in the mapping
-        for (uint256 i = 0; i < patient.length; i++) {
-            address patientAddress = patient[i];
+        for (uint256 i = 0; i < patientAddressArray.length; i++) {
+            address patientAddress = patientAddressArray[i];
             allPatients[i] = patients[patientAddress];
         }
 
         return allPatients;
     }
 
-    // Get profile (admin or patient or unregistered)
+    // Get profile (admin or patientAddressArray or unregistered)
     function profile() public view returns (Profile[] memory) {
         Profile[] memory prof = new Profile[](1);
 
@@ -204,7 +206,7 @@ contract PatientManagement {
     {
         uint median;
         MedianDistrict[] memory allDistrict = new MedianDistrict[](
-            district.length
+            districtNameArray.length
         );
 
         averageDeathRate = totalDeathCount / totalPatientCount;
@@ -216,26 +218,29 @@ contract PatientManagement {
 
         maxPatientDistrict = districtWithMaxPatient;
 
-        for (uint i = 0; i < district.length; i++) {
-            uint[] memory ageArray = districts[district[i]];
+        for (uint i = 0; i < districtNameArray.length; i++) {
+            uint[] memory ageArray = districts[districtNameArray[i]];
 
             uint[] memory sortedArray = bubbleSort(ageArray);
 
             // Calculate the median
             if (sortedArray.length % 2 == 0) {
                 // If even number of elements, take the average of the middle two
-                uint middleIndex1 = (sortedArray.length / 2);
+                uint middleIndex1 = (sortedArray.length / 2) - 1;
                 uint middleIndex2 = middleIndex1 + 1;
                 median =
                     (sortedArray[middleIndex1] + sortedArray[middleIndex2]) /
                     2;
             } else {
                 // If odd number of elements, take the middle element
-                uint middleIndex = (sortedArray.length + 1) / 2;
+                uint middleIndex = ((sortedArray.length + 1) / 2) - 1;
                 median = sortedArray[middleIndex];
             }
 
-            MedianDistrict memory newData = MedianDistrict(district[i], median);
+            MedianDistrict memory newData = MedianDistrict(
+                districtNameArray[i],
+                median
+            );
 
             allDistrict[i] = newData;
         }
