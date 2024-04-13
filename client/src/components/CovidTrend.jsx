@@ -7,12 +7,18 @@ import Typography from "@mui/material/Typography";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { tokens } from "../theme";
 import { DataGrid } from "@mui/x-data-grid";
+import useEth from "../contexts/EthContext/useEth.js";
 
 const CovidTrend = () => {
+  const {
+    state: { contract, accounts, role, loading },
+  } = useEth()
+  const [data, setData] = useState([]);
+
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
 
-   const rows = []
+  const rows = []
   const columns = [
     { field: "district", headerName: "District", flex: 1 },
     {
@@ -23,7 +29,27 @@ const CovidTrend = () => {
     },
   ]
 
-  return (
+  useEffect(() => {
+    const getData = async () => {
+      try {
+        const datas = await contract.methods.covidTrendTable().call({ from: accounts[0] })
+        setData(data)
+      } catch (error) {
+        console.log(error)
+      }
+    }
+
+    getPatients();
+  }, [contract, accounts])
+
+  console.log(patients)
+
+  if (loading || data.length === 0) {
+    return (
+      <h1>Please Wait</h1>
+    )
+  } else {
+    return (
     <Box m="20px">
       <Header title="COVID TREND" subtitle="Latest Data of Covid" />
 
@@ -107,6 +133,7 @@ const CovidTrend = () => {
       </Box>
     </Box>
   );
+  }
 };
 
 export default CovidTrend;
