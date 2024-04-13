@@ -3,25 +3,44 @@ import { Formik } from "formik";
 import * as yup from "yup";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import Header from "./Header";
-import { useState } from "react";
+import useEth from "../contexts/EthContext/useEth.js";
+import {useNavigate} from "react-router-dom";
 
 const Form = () => {
-  const isNonMobile = useMediaQuery("(min-width:600px)");
-  const [isAdmin, setIsAdmin] = useState(false)
+  const {
+    state: { contract, accounts, role, loading },
+  } = useEth()
 
-  const handleFormSubmit = (values) => {
+  const isNonMobile = useMediaQuery("(min-width:600px)");
+  const navigate = useNavigate();
+  
+  const handleFormSubmit = async (values) => {
     console.log(values);
+
+    if (values.isDead === "True"){
+      values.isDead = true
+    } else {
+      values.isDead = false
+    }
+
+    try {
+      await contract.methods.addPatient(values.publicAddress, values.age, values.gender, values.vaccineStatus, values.district, values.symptom, values.isDead).send({from: accounts[0]})
+      navigate("/")
+    } catch (error) {
+      console.log(error)
+    }
   };
 
   const checkoutSchema = yup.object().shape({
     age: yup.string().required("Required"),
     gender: yup.string().required("Required"),
+    publicAddress: yup.string().required("Required"),
     vaccineStatus: yup.string()
       .required("Required")
       .oneOf(["One Dose", "Two Dose", "Not Vaccinated"], "Invalid vaccine status"),
     district: yup.string().required("Required"),
     symptom: yup.string().required("Required"),
-    isDead: yup.string().oneOf(["True", "False"], "Invalid Is Dead status"),
+    isDead: yup.string().oneOf(["True", "False"], "Value can only be True or False"),
   });
 
   const initialValues = {
@@ -31,9 +50,15 @@ const Form = () => {
     district: "",
     symptom: "",
     isDead: "",
+    publicAddress: "",
   };
 
-  return (
+  if (loading) {
+    return (
+      <h1>Please Wait</h1>
+    )
+  } else {
+    return (
     <Box m="20px">
       <Header title="CREATE PROFILE" subtitle="Create a New Profile" />
 
@@ -84,6 +109,19 @@ const Form = () => {
                 error={!!touched.gender && !!errors.gender}
                 helperText={touched.gender && errors.gender}
                 sx={{ gridColumn: "span 2" }}
+              />
+              <TextField
+                fullWidth
+                variant="filled"
+                type="text"
+                label="Public Address"
+                onBlur={handleBlur}
+                onChange={handleChange}
+                value={values.publicAddress}
+                name="publicAddress"
+                error={!!touched.publicAddress && !!errors.publicAddress}
+                helperText={touched.publicAddress && errors.publicAddress}
+                sx={{ gridColumn: "span 4" }}
               />
               <TextField
                 fullWidth
@@ -140,7 +178,7 @@ const Form = () => {
             </Box>
             <Box display="flex" justifyContent="end" mt="20px">
               <Button type="submit" color="secondary" variant="contained">
-                {isAdmin ? "Add Patient" : "Register"}
+                {role === "Admin" ? "Add Patient" : "Register"}
               </Button>
             </Box>
           </form>
@@ -148,6 +186,7 @@ const Form = () => {
       </Formik>
     </Box>
   );
+  }  
 };
 
 export default Form;

@@ -21,6 +21,7 @@ contract PatientManagement {
         string district;
         string symptoms_details;
         bool is_dead;
+        address pub_address;
     }
 
     struct Profile {
@@ -88,7 +89,8 @@ contract PatientManagement {
             _vaccine_status,
             _district,
             _symptoms_details,
-            _is_dead
+            _is_dead,
+            _patient_address
         );
         // The mapping patients gets the key as the patientAddressArray address and value as newPatient
         patients[patient_add] = newPatient;

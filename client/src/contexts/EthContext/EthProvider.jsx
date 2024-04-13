@@ -20,9 +20,23 @@ function EthProvider({ children }) {
         } catch (err) {
           console.error(err);
         }
+
+        let role = 'unknown'
+        if (contract && accounts) {
+          role = await contract.methods.profile().call({ from: accounts[0] })
+        }
+
+        if (role[0][1] === "Admin"){
+          role = "Admin"
+        } else if (role[0][1] === "Patient"){
+          role = "Patient"
+        } else {
+          role = "Unregistered"
+        }
+        
         dispatch({
           type: actions.init,
-          data: { artifact, web3, accounts, networkID, contract }
+          data: { artifact, web3, accounts, networkID, contract, role, loading: false }
         });
       }
     }, []);
@@ -51,6 +65,8 @@ function EthProvider({ children }) {
       events.forEach(e => window.ethereum.removeListener(e, handleChange));
     };
   }, [init, state.artifact]);
+
+  console.log(state)
 
   return (
     <EthContext.Provider value={{

@@ -4,18 +4,58 @@ import * as yup from "yup";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import Header from "./Header";
 import { useState } from "react";
+import useEth from "../contexts/EthContext/useEth.js";
+import { useParams, useNavigate} from 'react-router-dom';
 
 const Update = () => {
   const isNonMobile = useMediaQuery("(min-width:600px)");
-  const [isAdmin, setIsAdmin] = useState(false)
+  const {
+    state: { contract, accounts, role, loading },
+  } = useEth()
 
-  const handleFormSubmit = (values) => {
+  const {id} = useParams();
+  const navigate = useNavigate();
+
+  const handleFormSubmit = async (values) => {
     console.log(values);
+    if (values.vaccineStatus.length !== 0 && values.isDead.length !== 0) {
+      if (values.isDead === "True"){
+        values.isDead = true
+      } else {
+        values.isDead = false
+      }
+      try {
+       await contract.methods.updateVaccineStatus(id, values.vaccineStatus).send({from: accounts[0]})
+       await contract.methods.updateIsDead(id, values.isDead).send({from: accounts[0]})
+       navigate("/")
+      } catch (error) {
+        console.log(error)
+      }
+    } else if (values.vaccineStatus.length !== 0 && values.isDead.length === 0){
+      try {
+       await contract.methods.updateVaccineStatus(id, values.vaccineStatus).send({from: accounts[0]})
+       navigate("/")
+      } catch (error) {
+        console.log(error)
+      }
+    } else {
+      if (values.isDead === "True"){
+        values.isDead = true
+      } else {
+        values.isDead = false
+      }
+      try {
+       await contract.methods.updateIsDead(id, values.isDead).send({from: accounts[0]})
+       navigate("/")
+      } catch (error) {
+        console.log(error)
+      }
+    }
+
   };
 
   const checkoutSchema = yup.object().shape({
     vaccineStatus: yup.string()
-      .required("Required")
       .oneOf(["One Dose", "Two Dose", "Not Vaccinated"], "Vaccine Status can only be One Dose, Two Doses or Not Vaccinated"),
     isDead: yup.string().oneOf(["True", "False"], "Dead status can only be True or False"),
   });
@@ -25,7 +65,10 @@ const Update = () => {
     isDead: "",
   };
 
-  return (
+  if (loading) {
+    <h1>Please Wait</h1>
+  } else {
+    return (
     <Box m="20px">
       <Header title="UPDATE" subtitle="Update vaccine status or is dead status of a patient" />
 
@@ -80,7 +123,7 @@ const Update = () => {
             </Box>
             <Box display="flex" justifyContent="end" mt="20px">
               <Button type="submit" color="secondary" variant="contained">
-                {isAdmin ? "Add Patient" : "Register"}
+                Update
               </Button>
             </Box>
           </form>
@@ -88,6 +131,7 @@ const Update = () => {
       </Formik>
     </Box>
   );
+  }
 };
 
 export default Update;

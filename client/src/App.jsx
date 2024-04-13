@@ -27,7 +27,7 @@ function App() {
               <Route exact path="/new" Component={Form} />
               <Route exact path="/trend" Component={CovidTrend} />
               <Route exact path="/certificate" Component={VaccineCertificate} />
-              <Route exact path="/update" Component={Update} />
+              <Route exact path="/update/:id" Component={Update} />
             </Routes>
           </main>
         </div>
