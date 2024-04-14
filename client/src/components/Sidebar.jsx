@@ -9,6 +9,8 @@ import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import PeopleOutlinedIcon from "@mui/icons-material/PeopleOutlined";
 import ReceiptOutlinedIcon from "@mui/icons-material/ReceiptOutlined";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
+import useEth from "../contexts/EthContext/useEth.js";
+
 
 const Item = ({ title, to, icon, selected, setSelected }) => {
   const theme = useTheme();
@@ -30,9 +32,12 @@ const Item = ({ title, to, icon, selected, setSelected }) => {
 };
 
 const Sidebar = () => {
+  const {
+    state: {role},
+  } = useEth()
+
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-  const [IsAdmin, setIsAdmin] = useState(true)
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [selected, setSelected] = useState("Dashboard");
 
@@ -75,7 +80,7 @@ const Sidebar = () => {
                 ml="15px"
               >
                 <Typography variant="h3" color={colors.grey[100]}>
-                  {IsAdmin ? "Admin" : "Patient"}
+                  {role === "Admin" ? "Admin" : role === "Patient" ? "Patient" : "Please Register"}
                 </Typography>
                 <IconButton onClick={() => setIsCollapsed(!isCollapsed)}>
                   <MenuOutlinedIcon />
@@ -83,16 +88,6 @@ const Sidebar = () => {
               </Box>
             )}
           </MenuItem>
-
-          {/* {!isCollapsed && (
-            <Box mb="25px">
-              <Box textAlign="center">
-                <Typography variant="h5" color={colors.greenAccent[500]}>
-                {IsAdmin ? "Admin" : "Patient Name"}
-                </Typography>
-              </Box>
-            </Box>
-          )} */}
 
           <Box paddingLeft={isCollapsed ? undefined : "10%"}>
             <Item
@@ -103,13 +98,16 @@ const Sidebar = () => {
               setSelected={setSelected}
             />
 
-            <Item
-              title={IsAdmin ? "Add Patient" : "Register"}
-              to="/new"
-              icon={<PeopleOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
+            {role !== "Patient" && 
+              <Item
+                title={role === "Admin" ? "Add Patient" : "Register"}
+                to="/new"
+                icon={<PeopleOutlinedIcon />}
+                selected={selected}
+                setSelected={setSelected}
+              />
+            }
+            
             <Item
               title="Covid Trend"
               to="/trend"
@@ -118,10 +116,10 @@ const Sidebar = () => {
               setSelected={setSelected}
             />
 
-            {IsAdmin ? 
+            {role === "Admin" ? 
             "" : 
             <Item
-              title={IsAdmin ? "" : "Vaccine Certificate"}
+              title="Vaccine Certificate"
               to="/certificate"
               icon={<ReceiptOutlinedIcon />}
               selected={selected}

@@ -8,19 +8,20 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { tokens } from "../theme";
 import { DataGrid } from "@mui/x-data-grid";
 import useEth from "../contexts/EthContext/useEth.js";
+import { useEffect, useState } from "react";
 
 const CovidTrend = () => {
   const {
-    state: { contract, accounts, role, loading },
+    state: { contract, accounts, loading },
   } = useEth()
-  const [data, setData] = useState([]);
+  const [data, setData] = useState([])
 
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
 
   const rows = []
   const columns = [
-    { field: "district", headerName: "District", flex: 1 },
+    { field: "id", headerName: "District", flex: 1 },
     {
       field: "medianAge",
       headerName: "Median Age of Patients",
@@ -32,17 +33,29 @@ const CovidTrend = () => {
   useEffect(() => {
     const getData = async () => {
       try {
-        const datas = await contract.methods.covidTrendTable().call({ from: accounts[0] })
+        const data = await contract.methods.covidTrendTable().call({ from: accounts[0] })
         setData(data)
       } catch (error) {
         console.log(error)
       }
     }
 
-    getPatients();
+    getData();
   }, [contract, accounts])
 
-  console.log(patients)
+  console.log(data, data[6])
+
+  if (data.length !== 0) {
+    data[6].forEach((element) => {
+    if (rows.some(row => row.id !== element.district) || rows.length === 0) {
+      rows.push({
+        id: element.district,
+        medianAge: element.median,
+      })
+    }
+  })
+  }
+  
 
   if (loading || data.length === 0) {
     return (
@@ -61,8 +74,7 @@ const CovidTrend = () => {
         </AccordionSummary>
         <AccordionDetails>
           <Typography>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse
-            malesuada lacus ex, sit amet blandit leo lobortis eget.
+            {data.averageDeathRate}
           </Typography>
         </AccordionDetails>
       </Accordion>
@@ -75,8 +87,7 @@ const CovidTrend = () => {
         </AccordionSummary>
         <AccordionDetails>
           <Typography>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse
-            malesuada lacus ex, sit amet blandit leo lobortis eget.
+            {data.maxPatientDistrict}
           </Typography>
         </AccordionDetails>
       </Accordion>
@@ -89,9 +100,10 @@ const CovidTrend = () => {
         </AccordionSummary>
         <AccordionDetails>
           <Typography>
-            Children: Number <br />
-            Teenage: Number <br />
-            Elder: Number 
+            Children: {data.percentageChildren}<br />
+            Teenage: {data.percentageTeenagers} <br />
+            Young: {data.percentageYoung}<br />
+            Elder: {data.percentageElder}
           </Typography>
         </AccordionDetails>
       </Accordion>

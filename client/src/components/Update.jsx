@@ -3,14 +3,13 @@ import { Formik } from "formik";
 import * as yup from "yup";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import Header from "./Header";
-import { useState } from "react";
 import useEth from "../contexts/EthContext/useEth.js";
 import { useParams, useNavigate} from 'react-router-dom';
 
 const Update = () => {
   const isNonMobile = useMediaQuery("(min-width:600px)");
   const {
-    state: { contract, accounts, role, loading },
+    state: { contract, accounts, loading },
   } = useEth()
 
   const {id} = useParams();

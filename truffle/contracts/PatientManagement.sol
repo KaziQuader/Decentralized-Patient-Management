@@ -7,8 +7,8 @@ contract PatientManagement {
     address public admin;
     address[] private patientAddressArray;
     uint public districtMaxPatient = 0;
-    uint public totalPatientCount;
-    uint public totalDeathCount;
+    uint public totalPatientCount = 0;
+    uint public totalDeathCount = 0;
     uint[4] public ageCount;
     string[] private districtNameArray;
     string public districtWithMaxPatient;
@@ -105,7 +105,7 @@ contract PatientManagement {
         districtNameArray.push(_district);
 
         // Recording death count and patientAddressArray count
-        if (_is_dead) {
+        if (_is_dead == true) {
             totalDeathCount++;
         }
         totalPatientCount++;
@@ -139,13 +139,18 @@ contract PatientManagement {
         bool _is_dead
     ) public onlyAdmin {
         patients[_patient_address].is_dead = _is_dead;
+        if (_is_dead == true) {
+            totalDeathCount++;
+        } else {
+            totalDeathCount--;
+        }
         emit IsDeadStatusUpdated(_patient_address, _is_dead);
     }
 
     // Function to let patientAddressArray download vaccine certificate if he / she recieved two doses
     function certificate() public view returns (string memory) {
         string memory vaccine_stat = patients[msg.sender].vaccine_status;
-        string memory equal = "two_doses";
+        string memory equal = "Two Dose";
 
         if (bytes(vaccine_stat).length != bytes(equal).length) {
             return "Please make sure you have recieved two doses";
