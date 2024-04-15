@@ -216,7 +216,7 @@ contract PatientManagement {
             districtNameArray.length
         );
 
-        averageDeathRate = totalDeathCount / totalPatientCount;
+        averageDeathRate = ((totalDeathCount * 100) / totalPatientCount);
 
         percentageChildren = (ageCount[0] * 100) / totalPatientCount;
         percentageTeenagers = (ageCount[1] * 100) / totalPatientCount;
